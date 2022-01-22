@@ -51,7 +51,8 @@ def handle_brightness():
     width = int(config['DEFAULT']['rows'])
     height = int(config['DEFAULT']['columns'])
     power = config['DEFAULT']['power']
-    with open(filename, 'wb') as configfile:
+    print(1)
+    with open(filename, 'w') as configfile:
         config.write(configfile)
     job = manager.RestartUnit('spotipi.service', 'fail')
     return render_template('index.html', brightness = request.form['brightness'], width = width, height = height, power = power)
@@ -63,7 +64,7 @@ def handle_size():
     config.set('DEFAULT', 'columns', request.form['height'])
     brightness = int(config['DEFAULT']['brightness'])
     power = config['DEFAULT']['power']
-    with open(filename, 'wb') as configfile:
+    with open(filename, 'w') as configfile:
         config.write(configfile)
     job = manager.RestartUnit('spotipi.service', 'fail')
     return render_template('index.html', brightness = brightness, width = int(request.form['width']), height = int(request.form['height']), power = power)

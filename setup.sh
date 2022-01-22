@@ -49,7 +49,7 @@ echo "...done"
 
 echo "Creating spotipi service:"
 sudo cp ./config/spotipi.service /etc/systemd/system/
-sudo sed -i -e "/\[Service\]/a ExecStart=python ${install_path}/python/displayCoverArt.py ${spotify_username} ${spotify_token_path} < /dev/zero &> /dev/null &" /etc/systemd/system/spotipi.service
+sudo sed -i -e "/\[Service\]/a ExecStart=python3 ${install_path}/python/displayCoverArt.py ${spotify_username} ${spotify_token_path} < /dev/zero &> /dev/null &" /etc/systemd/system/spotipi.service
 sudo mkdir /etc/systemd/system/spotipi.service.d
 spotipi_env_path=/etc/systemd/system/spotipi.service.d/spotipi_env.conf
 sudo touch $spotipi_env_path
@@ -64,7 +64,7 @@ echo "...done"
 
 echo "Creating spotipi-client service:"
 sudo cp ./config/spotipi-client.service /etc/systemd/system/
-sudo sed -i -e "/\[Service\]/a ExecStart=python ${install_path}/python/client/app.py &" /etc/systemd/system/spotipi-client.service
+sudo sed -i -e "/\[Service\]/a ExecStart=python3 ${install_path}/python/client/app.py &" /etc/systemd/system/spotipi-client.service
 sudo systemctl daemon-reload
 sudo systemctl start spotipi-client
 sudo systemctl enable spotipi-client

@@ -38,6 +38,7 @@ if len(sys.argv) > 2:
     options.hardware_mapping = config['DEFAULT']['hardware_mapping']
     options.gpio_slowdown = int(config['DEFAULT']['gpio_slowdown'])
     options.brightness = int(config['DEFAULT']['brightness'])
+    options.led_rgb_sequence = config['DEFAULT']['led_rgb_sequence']
     
     default_image = os.path.join(dir, config['DEFAULT']['default_image'])
     print(default_image)
