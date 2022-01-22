@@ -8,7 +8,7 @@ This project is to display information on 32x32 led matrix from the Spotify web 
 * Before logging into the raspberry pi, you will need to generate an authentication token.
 * To do this, you are going to want to clone my spotipi repository on your main computer with access to a web browser.
 ```
-git clone  https://github.com/ryanwa18/spotipi.git
+git clone  https://github.com/frod0r/spotipi-homeassistant.git
 ```
 * Next go ahead and change into the directory using 
 ```
@@ -23,18 +23,23 @@ bash generate-token.sh
 ```
 scp .cache-<username> pi@spotipy.local:/home/pi
 ```
-* Clone the repository to your raspberrypi
+* On the Raspberry Pi, setup the LED-Matrix, following [the guide provided by the rpi-led-matrix project](https://github.com/hzeller/rpi-rgb-led-matrix) if you are using an adafruit hat, also have a look at [their guide](https://learn.adafruit.com/adafruit-rgb-matrix-plus-real-time-clock-hat-for-raspberry-pi)
 ```
-git clone https://github.com/ryanwa18/spotipi.git
+* Set up pyhton3 bindings following [this guide](https://github.com/hzeller/rpi-rgb-led-matrix/blob/a93acf26990ad6794184ed8c9487ab2a5c39cd28/bindings/python/README.md). Confirm it working by executing one of the [python samples](
+rpi-rgb-led-matrix/bindings/python/samples/)
+```
+* Clone the spotipi repository to your raspberrypi
+```
+git clone https://github.com/frod0r/spotipi-homeassistant.git
 ```
 * Move the token file to the repository root
 ```
 mv <path_to_cache_file> <path_to_cloned_repository>
 ```
-* Install the software: <br />
+* Install the systemd-units: <br />
 ```
 cd spotipi
-sudo bash setup.sh
+sudo ./setup.sh
 ```
 * Edit settings on the web app: <br />
 ```

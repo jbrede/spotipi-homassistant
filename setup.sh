@@ -1,10 +1,10 @@
 #!/bin/bash
 
 echo "Installing spotipy library:"
-pip install spotipy --upgrade
+pip3 install spotipy --upgrade
 
 echo "Installing flask library:"
-pip install flask --upgrade
+pip3 install flask --upgrade
 
 echo "Enter your Spotify Client ID:"
 read spotify_client_id
@@ -23,17 +23,17 @@ read spotify_token_path
 
 install_path=$(pwd)
 
-echo "Downloading rgb-matrix software setup:"
-curl https://raw.githubusercontent.com/adafruit/Raspberry-Pi-Installer-Scripts/master/rgb-matrix.sh >rgb-matrix.sh
+#echo "Downloading rgb-matrix software setup:"
+#curl https://raw.githubusercontent.com/adafruit/Raspberry-Pi-Installer-Scripts/master/rgb-matrix.sh >rgb-matrix.sh
 
-sed -n '/REBOOT NOW?/q;p' < rgb-matrix.sh > rgb-matrix-spotipi.sh
+#sed -n '/REBOOT NOW?/q;p' < rgb-matrix.sh > rgb-matrix-spotipi.sh
 
-echo "Running rgb-matrix software setup:"
-sudo bash rgb-matrix-spotipi.sh
+#echo "Running rgb-matrix software setup:"
+#sudo bash rgb-matrix-spotipi.sh
 
-echo "Removing rgb-matrix setup script:"
-sudo rm rgb-matrix.sh
-echo "...done"
+#echo "Removing rgb-matrix setup script:"
+#sudo rm rgb-matrix.sh
+#echo "...done"
 
 echo "Removing spotipi service if it exists:"
 sudo systemctl stop spotipi
