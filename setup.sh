@@ -4,7 +4,7 @@ echo "Installing spotipy library:"
 pip3 install spotipy --upgrade
 
 echo "Installing flask library:"
-pip3 install flask --upgrade
+pip3 install paho-mqtt --upgrade
 
 echo "Enter your Spotify Client ID:"
 read spotify_client_id
