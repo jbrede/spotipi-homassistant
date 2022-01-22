@@ -41,10 +41,4 @@ mv <path_to_cache_file> <path_to_cloned_repository>
 cd spotipi
 sudo ./setup.sh
 ```
-* Edit settings on the web app: <br />
-```
-navigate to http://<raspberrypi_hostname or ip_address> within a web browser
-```
-
-### Final Product
-![](https://i.redd.it/8s1cxqo5jfk51.jpg)
+* Set up mqtt in home assistant if you haven't already and let it discover your smart led martix
