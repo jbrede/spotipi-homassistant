@@ -15,6 +15,8 @@ config.read(filename)
 sysbus = dbus.SystemBus()
 systemd1 = sysbus.get_object('org.freedesktop.systemd1', '/org/freedesktop/systemd1')
 manager = dbus.Interface(systemd1, 'org.freedesktop.systemd1.Manager')
+service = sysbus.get_object('org.freedesktop.systemd1', object_path=manager.GetUnit('spotipi.service'))
+interface = dbus.Interface(service, dbus_interface='org.freedesktop.DBus.Properties')
 
 client_name = "spotipi"
 matrix_name = "rgb_matrix"
@@ -38,6 +40,13 @@ def on_message(client, userdata, message):
     print("message topic=", message.topic)
     print("message qos=", message.qos)
     print("message retain flag=", message.retain)
+    fullstate = {"state": "OFF", "brightness": 0}
+    unit_state = interface.Get('org.freedesktop.systemd1.Unit', 'ActiveState')
+    if unit_state == 'active':
+        brightness = str(config['DEFAULT']['brightness'])
+        fullstate = {"state": "ON", "brightness": int(brightness)}
+    print('active_state: ' + active_state)
+    client.publish(state_topic, json.dumps(fullstate))
 
 def on_set_message(client, userdata, message):
     print("in set topic")
