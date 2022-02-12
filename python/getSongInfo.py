@@ -15,7 +15,8 @@ def getSongInfo(username, token_path):
       result = sp.current_user_playing_track()
     
       if result is None:
-         print("No song playing")
+         #print("No song playing")
+         return [None, None]
       else:  
         song = result["item"]["name"]
         imageURL = result["item"]["album"]["images"][0]["url"]
