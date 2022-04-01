@@ -35,6 +35,7 @@ config_payload = '''{
   "brightness_scale": 100
 }'''
 
+
 def on_message(client, userdata, message):
     print("message received ", str(message.payload.decode("utf-8")))
     print("message topic=", message.topic)
@@ -45,8 +46,9 @@ def on_message(client, userdata, message):
     if unit_state == 'active':
         brightness = str(config['DEFAULT']['brightness'])
         fullstate = {"state": "ON", "brightness": int(brightness)}
-    print('active_state: ' + active_state)
+    # print('active_state: ' + active_state)
     client.publish(state_topic, json.dumps(fullstate), retain=True)
+
 
 def on_set_message(client, userdata, message):
     print("in set topic")
@@ -61,7 +63,7 @@ def on_set_message(client, userdata, message):
             job = manager.RestartUnit('spotipi.service', 'fail')
             fullstate = {"state": "ON", "brightness": int(brightness)}
             client.publish(state_topic, json.dumps(fullstate), retain=True)
-    elif "state" in payload: 
+    elif "state" in payload:
         state = payload["state"]
         if state == "ON":
             print("Turning on")
@@ -76,10 +78,10 @@ def on_set_message(client, userdata, message):
             fullstate = {"state": "OFF", "brightness": int(brightness)}
             client.publish(state_topic, json.dumps(fullstate), retain=True)
 
+
 def on_disconnect(client, userdata, rc):
     if rc != 0:
         print("Unexpected MQTT disconnection. Will auto-reconnect")
-
 
 
 client = mqtt.Client(client_name)
@@ -92,11 +94,8 @@ client.publish(config_topic, config_payload, retain=True)
 brightness = str(config['DEFAULT']['brightness'])
 fullstate = {"state": "ON", "brightness": brightness}
 client.publish(state_topic, json.dumps(fullstate), retain=True)
-#client.loop_start()
+
 try:
     client.loop_forever()
-    #while True:
-        #time.sleep(4)
 except KeyboardInterrupt:
-    #client.loop_stop()
     client.disconnect()

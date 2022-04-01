@@ -22,7 +22,7 @@ def main() -> int:
 	# Configuration file
 	project_dir = os.path.dirname(__file__)
 	filename = os.path.join(project_dir, '../config/rgb_options.ini')
-	icon_dir = os.path.join(project_dir, '../wheather_icons/')
+	icon_dir = os.path.join(project_dir, '../weather_icons/')
 	text_color = graphics.Color(240, 230, 220)
 
 	# Configures logger for storing song data
