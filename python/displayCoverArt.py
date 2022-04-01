@@ -10,57 +10,20 @@ from rgbmatrix import RGBMatrix, RGBMatrixOptions, graphics
 import os
 import configparser
 from datetime import datetime, timedelta
-import schedule
+
+from WeatherDisplay import WeatherDisplay
 
 
 def main() -> int:
-	query = {
-		'lat': '12.345678', 'lon': '9.123456', 'units': 'metric', 'exclude': 'minutely,alerts',
-		'appid': 'xxx'}
-	response = requests.get("https://api.openweathermap.org/data/2.5/onecall", params=query, timeout=5)
-	response_json = response.json()
-	last_weather_refresh = datetime.now()
-
-	def refresh_weather():
-		response = requests.get("https://api.openweathermap.org/data/2.5/onecall", params=query, timeout=5)
-		nonlocal response_json
-		response_json = response.json()
-		return response_json
-
-	black_img = Image.new('RGBA', (16, 16)).convert('RGBA')
-	iconMap = {
-		'01d': 'sun.png',
-		'01n': 'half-moon.png',
-		'02d': 'cloudy_2.png',
-		'02n': 'cloudy-night.png',
-		'03d': 'cloud.png',
-		'03n': 'cloud.png',
-		'04d': 'cloudy_broken.png',
-		'04n': 'cloudy_broken.png',
-		'09d': 'rain_shower.png',
-		'09n': 'rain_shower.png',
-		'10d': 'rain.png',
-		'10n': 'rain.png',
-		'11d': 'storm.png',
-		'11n': 'storm_1.png',
-		'13d': 'snowflake.png',
-		'13n': 'snowflake.png',
-		'50d': 'wind.png',
-		'50n': 'wind.png'}
-
-	def getIcon(icon_name):
-		icon_path = iconMap[icon_name]
-		if not icon_path:
-			icon_path = 'thunder.png'
-		return Image.alpha_composite(black_img, Image.open(os.path.join(dir, '../wheather_icons/' + icon_path)).convert(
-			'RGBA')).convert('RGB')
 
 	username = sys.argv[1]
 	token_path = sys.argv[2]
 
 	# Configuration file
-	dir = os.path.dirname(__file__)
-	filename = os.path.join(dir, '../config/rgb_options.ini')
+	project_dir = os.path.dirname(__file__)
+	filename = os.path.join(project_dir, '../config/rgb_options.ini')
+	icon_dir = os.path.join(project_dir, '../wheather_icons/')
+	text_color = graphics.Color(240, 230, 220)
 
 	# Configures logger for storing song data
 	logging.basicConfig(
@@ -85,74 +48,51 @@ def main() -> int:
 	options.brightness = int(config['DEFAULT']['brightness'])
 	options.led_rgb_sequence = config['DEFAULT']['led_rgb_sequence']
 
+	lat = config['DEFAULT']['lat']
+	lon = config['DEFAULT']['lon']
+	units = config['DEFAULT']['units']
+	appid = config['DEFAULT']['appid']
+
 	font = graphics.Font()
 	font_small = graphics.Font()
-	font_path = os.path.join(dir, '../fonts/5x8.bdf')
-	font_small_path = os.path.join(dir, '../fonts/4x6.bdf')
+	font_path = os.path.join(project_dir, '../fonts/5x8.bdf')
+	font_small_path = os.path.join(project_dir, '../fonts/4x6.bdf')
 	print(font_path)
 	font.LoadFont(font_path)
 	font_small.LoadFont(font_small_path)
 
-	# schedule.every(5).minutes.do(refresh_weather)
-	text_color = graphics.Color(240, 230, 220)
-	default_image = os.path.join(dir, config['DEFAULT']['default_image'])
+	default_image = os.path.join(project_dir, config['DEFAULT']['default_image'])
 	print(default_image)
 	matrix = RGBMatrix(options=options)
 	canvas = matrix.CreateFrameCanvas()
-	lastURL = ""
-	imageURL = None
+
+	weather_disp = WeatherDisplay(lat, lon, units, appid, icon_dir, font, font_small)
+
+	last_url = ""
+	image_url = None
 	last_spotify_refresh = datetime.now()
 	try:
 		while True:
 			try:
 				now = datetime.now()
 				if now - last_spotify_refresh > timedelta(seconds=1):
-					imageURL = getSongInfo(username, token_path)[1]
+					image_url = getSongInfo(username, token_path)[1]
 					last_spotify_refresh = now
-				if imageURL is not None:
-					if imageURL == lastURL:
+				if image_url is not None:
+					if image_url == last_url:
 						time.sleep(1)
 						continue
-					lastURL = imageURL
-					response_image = requests.get(imageURL)
+					last_url = image_url
+					response_image = requests.get(image_url)
 					image = Image.open(BytesIO(response_image.content))
 					image.thumbnail((matrix.width, matrix.height), Image.ANTIALIAS)
 					# image.thumbnail((matrix.width/2, matrix.height/2), Image.ANTIALIAS)
 					canvas.SetImage(image.convert('RGB'))
 					time.sleep(1)
 				else:
-					main_icon_name = response_json['current']['weather'][0]['icon']
-					main_icon = getIcon(main_icon_name)
-					if now - last_weather_refresh > timedelta(minutes=5):
-						response_json = refresh_weather()
-						last_weather_refresh = now
-						print('refreshed')
-					now_text = now.strftime('%H:%M')
-					secs_text = now.strftime(':%S')
-					secs = int(now.strftime('%-S'))
-					length = graphics.DrawText(canvas, font, 0, 8, text_color, now_text)
-					graphics.DrawText(
-						canvas, font, 10, 16,
-						graphics.Color((int(secs * 4.25) + 125) % 255, 255 - int(secs * 4.25) % 255, int(secs * 4.25) % 255),
-						secs_text)
-					canvas.SetImage(main_icon, length, 0)
-					graphics.DrawText(
-						canvas, font_small, length + 18, 8, text_color, str(response_json['current']['temp']) + '°')
-					graphics.DrawText(
-						canvas, font_small, length + 18, 16, text_color, str(response_json['current']['humidity']) + '%')
-					for i in range(1, 5):
-						icon_name = response_json['hourly'][i]['weather'][0]['icon']
-						time_text = datetime.fromtimestamp(response_json['hourly'][i]['dt']).strftime('%Hh')
-						canvas.SetImage(getIcon(icon_name), 16 * (i - 1), 16)
-						graphics.DrawText(canvas, font_small, 16 * (i - 1) + 2, 40 - 2, text_color, time_text)
-						icon_name_daily = response_json['daily'][i]['weather'][0]['icon']
-						time_text_daily = datetime.fromtimestamp(response_json['daily'][i]['dt']).strftime('%a')
-						canvas.SetImage(getIcon(icon_name_daily), 16 * (i - 1), 40)
-						graphics.DrawText(canvas, font_small, 16 * (i - 1) + 2, 64 - 2, text_color, time_text_daily)
+					weather_disp.display_weather_panel(canvas)
 					time.sleep(0.5)
-				# canvas.SetImage(image.convert('RGB'), matrix.width/2, matrix.height/2)
 				canvas = matrix.SwapOnVSync(canvas)
-				# time.sleep(1)
 				canvas.Clear()
 			except Exception as e:
 				print(str(e))
@@ -168,7 +108,6 @@ def main() -> int:
 				canvas.Clear()
 	except KeyboardInterrupt:
 		return 0
-	return 0
 
 
 if len(sys.argv) > 2:
