@@ -46,7 +46,7 @@ def on_message(client, userdata, message):
         brightness = str(config['DEFAULT']['brightness'])
         fullstate = {"state": "ON", "brightness": int(brightness)}
     print('active_state: ' + active_state)
-    client.publish(state_topic, json.dumps(fullstate))
+    client.publish(state_topic, json.dumps(fullstate), retain=True)
 
 def on_set_message(client, userdata, message):
     print("in set topic")
@@ -60,7 +60,7 @@ def on_set_message(client, userdata, message):
             #os.close(configfile)
             job = manager.RestartUnit('spotipi.service', 'fail')
             fullstate = {"state": "ON", "brightness": int(brightness)}
-            client.publish(state_topic, json.dumps(fullstate))
+            client.publish(state_topic, json.dumps(fullstate), retain=True)
     elif "state" in payload: 
         state = payload["state"]
         if state == "ON":
@@ -68,13 +68,13 @@ def on_set_message(client, userdata, message):
             brightness = str(config['DEFAULT']['brightness'])
             job = manager.StartUnit('spotipi.service', 'replace')
             fullstate = {"state": "ON", "brightness": int(brightness)}
-            client.publish(state_topic, json.dumps(fullstate))
+            client.publish(state_topic, json.dumps(fullstate), retain=True)
         elif state == "OFF":
             print("Turning off")
             brightness = str(0)
             job = manager.StopUnit('spotipi.service', 'replace')
             fullstate = {"state": "OFF", "brightness": int(brightness)}
-            client.publish(state_topic, json.dumps(fullstate))
+            client.publish(state_topic, json.dumps(fullstate), retain=True)
 
 def on_disconnect(client, userdata, rc):
     if rc != 0:
@@ -88,10 +88,10 @@ client.message_callback_add(set_topic, on_set_message)
 client.on_disconnect = on_disconnect
 client.connect("nanopi")
 client.subscribe(set_topic)
-client.publish(config_topic, config_payload)
+client.publish(config_topic, config_payload, retain=True)
 brightness = str(config['DEFAULT']['brightness'])
 fullstate = {"state": "ON", "brightness": brightness}
-client.publish(state_topic, json.dumps(fullstate))
+client.publish(state_topic, json.dumps(fullstate), retain=True)
 #client.loop_start()
 try:
     client.loop_forever()
