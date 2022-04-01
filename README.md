@@ -1,5 +1,5 @@
-# Spotipi & Wheather
-![](/mnt/4/spotipi/images/Showcase.jpg)
+# Spotipi & Weather
+![Showcase](images/Showcase.jpg)
 ### Overview
 This project is to display spotify cover art on 64x64 led matrix from the Spotify web api.
 When not playing music it should display weather information.
