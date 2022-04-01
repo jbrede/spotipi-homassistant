@@ -19,7 +19,7 @@ def main() -> int:
 		'appid': 'xxx'}
 	response = requests.get("https://api.openweathermap.org/data/2.5/onecall", params=query, timeout=5)
 	response_json = response.json()
-	last_refresh = datetime.now()
+	last_weather_refresh = datetime.now()
 
 	def refresh_weather():
 		response = requests.get("https://api.openweathermap.org/data/2.5/onecall", params=query, timeout=5)
@@ -100,10 +100,15 @@ def main() -> int:
 	matrix = RGBMatrix(options=options)
 	canvas = matrix.CreateFrameCanvas()
 	lastURL = ""
+	imageURL = None
+	last_spotify_refresh = datetime.now()
 	try:
 		while True:
 			try:
-				imageURL = getSongInfo(username, token_path)[1]
+				now = datetime.now()
+				if now - last_spotify_refresh > timedelta(seconds=1):
+					imageURL = getSongInfo(username, token_path)[1]
+					last_spotify_refresh = now
 				if imageURL is not None:
 					if imageURL == lastURL:
 						time.sleep(1)
@@ -118,10 +123,9 @@ def main() -> int:
 				else:
 					main_icon_name = response_json['current']['weather'][0]['icon']
 					main_icon = getIcon(main_icon_name)
-					now = datetime.now()
-					if now - last_refresh > timedelta(minutes=5):
+					if now - last_weather_refresh > timedelta(minutes=5):
 						response_json = refresh_weather()
-						last_refresh = now
+						last_weather_refresh = now
 						print('refreshed')
 					now_text = now.strftime('%H:%M')
 					secs_text = now.strftime(':%S')
@@ -152,12 +156,15 @@ def main() -> int:
 				canvas.Clear()
 			except Exception as e:
 				print(str(e))
-				graphics.DrawText(canvas, font_small, 0, 32, text_color, str(e))
 				image = Image.open(default_image)
 				image.thumbnail((matrix.width, matrix.height), Image.ANTIALIAS)
 				canvas.SetImage(image.convert('RGB'))
+				i = 1
+				for msg_part in str(e).split():
+					graphics.DrawText(canvas, font, 0, 8 * i, text_color, msg_part)
+					i = i + 1
 				canvas = matrix.SwapOnVSync(canvas)
-				time.sleep(1)
+				time.sleep(5)
 				canvas.Clear()
 	except KeyboardInterrupt:
 		return 0
