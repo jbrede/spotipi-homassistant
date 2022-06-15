@@ -35,7 +35,7 @@ scp .cache-<username> pi@spotipy.local:/home/pi
 rpi-rgb-led-matrix/bindings/python/samples/)
 * Clone the spotipi repository to your raspberrypi
 ```
-git clone https://github.com/frod0r/spotipi-homeassistant.git
+git clone https://github.com/jbrede/spotipi-homeassistant.git
 ```
 * Move the token file to the repository root
 ```
